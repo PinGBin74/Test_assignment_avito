@@ -1,0 +1,23 @@
+from typing import Protocol
+
+from src.pull_requests.models import PullRequest
+
+
+class PullRequestRepositoryProtocol(Protocol):
+    async def create(
+        self, pr_id: str, name: str, author_id: str
+    ) -> PullRequest: ...
+
+    async def get(self, pr_id: str) -> PullRequest | None: ...
+
+    async def merge(self, pr_id: str) -> PullRequest | None: ...
+
+    async def assign_reviewer(self, pr_id: str, user_id: str) -> None: ...
+
+    async def get_assigned_reviewers(self, pr_id: str) -> list[str]: ...
+
+    async def replace_reviewer(
+        self, pr_id: str, old_user_id: str, new_user_id: str
+    ) -> None: ...
+
+    async def get_reviewing_prs(self, user_id: str) -> list[PullRequest]: ...
