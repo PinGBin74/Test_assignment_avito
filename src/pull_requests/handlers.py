@@ -4,7 +4,9 @@ from src.dependencies import get_pr_service
 from src.pull_requests.schema import (
     CreatePRRequest,
     MergePRRequest,
+    PullRequestOut,
     ReassignRequest,
+    ReassignResponse,
 )
 from src.pull_requests.service import PullRequestService
 
@@ -15,24 +17,24 @@ router = APIRouter(tags=["PullRequests"])
 async def create_pr(
     body: CreatePRRequest,
     service: PullRequestService = Depends(get_pr_service),
-) -> dict:
+) -> PullRequestOut:
     pr = await service.create_pr(body)
-    return {pr}
+    return pr
 
 
 @router.post("/pullRequest/merge")
 async def merge_pr(
     body: MergePRRequest,
     service: PullRequestService = Depends(get_pr_service),
-) -> dict:
+) -> PullRequestOut:
     pr = await service.merge_pr(body.pull_request_id)
-    return {"pr": pr}
+    return pr
 
 
 @router.post("/pullRequest/reassign")
 async def reassign(
     body: ReassignRequest,
     service: PullRequestService = Depends(get_pr_service),
-) -> dict:
+) -> ReassignResponse:
     result = await service.reassign(body.pull_request_id, body.old_user_id)
-    return {"pr": result.pr, "replaced_by": result.replaced_by}
+    return result

@@ -1,5 +1,6 @@
 import random
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import (
@@ -10,6 +11,7 @@ from src.exceptions import (
     PRMergedError,
 )
 from src.pull_requests.interfaces import PullRequestRepositoryProtocol
+from src.pull_requests.repository import PullRequestRepository
 from src.pull_requests.schema import (
     CreatePRRequest,
     PullRequestOut,
@@ -17,6 +19,7 @@ from src.pull_requests.schema import (
     ReassignResponse,
 )
 from src.users.interfaces import UserRepositoryProtocol
+from src.users.repository import UserRepository
 from src.users.schema import GetReviewResponse
 
 
@@ -27,8 +30,8 @@ class PullRequestService:
         user_repo: UserRepositoryProtocol | None = None,
         session: AsyncSession | None = None,
     ):
-        self.pr_repo = pr_repo
-        self.user_repo = user_repo
+        self.pr_repo = pr_repo or PullRequestRepository(session)
+        self.user_repo = user_repo or UserRepository(session)
         self.session = session
 
     async def create_pr(self, req: CreatePRRequest) -> PullRequestOut:
@@ -44,18 +47,22 @@ class PullRequestService:
             author.team_name, exclude_ids=[req.author_id]
         )
         selected = random.sample(candidates, min(2, len(candidates)))
+        try:
+            async with self.session.begin():
+                pr = await self.pr_repo.create(
+                    req.pull_request_id, req.pull_request_name, req.author_id
+                )
+                assigned = []
+                for reviewer in selected:
+                    assigned.append(reviewer.user_id)
+                    await self.pr_repo.assign_reviewer(
+                        req.pull_request_id, reviewer.user_id
+                    )
 
-        pr = await self.pr_repo.create(
-            req.pull_request_id, req.pull_request_name, req.author_id
-        )
-        assigned = []
-        for reviewer in selected:
-            assigned.append(reviewer.user_id)
-            await self.pr_repo.assign_reviewer(
-                req.pull_request_id, reviewer.user_id
-            )
+        
+        except IntegrityError:
+            raise PRExistsError(req.pull_request_id) from None
 
-        await self.session.commit()
         return PullRequestOut(
             pull_request_id=pr.pull_request_id,
             pull_request_name=pr.pull_request_name,

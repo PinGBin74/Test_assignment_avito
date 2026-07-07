@@ -2,9 +2,11 @@ from pydantic import BaseModel
 
 from src.pull_requests.schema import PullRequestShort
 
+
 class SetIsActiveRequest(BaseModel):
     user_id: str
     is_active: bool
+
 
 class UserOut(BaseModel):
     user_id: str

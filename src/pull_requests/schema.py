@@ -39,6 +39,5 @@ class ReassignRequest(BaseModel):
 
 
 class ReassignResponse(BaseModel):
-    pull_request: PullRequestOut
+    pr: PullRequestOut
     replaced_by: str
-

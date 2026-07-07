@@ -1,23 +1,20 @@
 from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel
 
 from src.dependencies import get_pr_service, get_user_service
 from src.pull_requests.service import PullRequestService
-from src.users.schema import GetReviewResponse, SetIsActiveRequest
+from src.users.schema import GetReviewResponse, SetIsActiveRequest, UserOut
 from src.users.service import UserService
 
 router = APIRouter(tags=["Users"])
-
-
 
 
 @router.post("/users/setIsActive")
 async def set_is_active(
     body: SetIsActiveRequest,
     service: UserService = Depends(get_user_service),
-) -> SetIsActiveRequest:
+) -> UserOut:
     user = await service.set_is_active(body.user_id, body.is_active)
-    return { user}
+    return user
 
 
 @router.get("/users/getReview")

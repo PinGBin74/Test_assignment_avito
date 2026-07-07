@@ -13,7 +13,7 @@ async def add_team(
     service: TeamService = Depends(get_team_service),
 ) -> Team:
     team = await service.add_team(body.team_name, body.members)
-    return {team}
+    return team
 
 
 @router.get("/team/get")

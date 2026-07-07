@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import NotFoundError
 from src.users.interfaces import UserRepositoryProtocol
+from src.users.repository import UserRepository
 from src.users.schema import UserOut
 
 
@@ -11,7 +12,7 @@ class UserService:
         user_repo: UserRepositoryProtocol | None = None,
         session: AsyncSession | None = None,
     ):
-        self.user_repo = user_repo
+        self.user_repo = user_repo or UserRepository(session)
         self.session = session
 
     async def set_is_active(self, user_id: str, is_active: bool) -> UserOut:

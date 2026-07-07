@@ -1,9 +1,12 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import NotFoundError, TeamExistsError
 from src.team.interfaces import TeamRepositoryProtocol
+from src.team.repository import TeamRepository
 from src.team.schema import Team, TeamMember
 from src.users.interfaces import UserRepositoryProtocol
+from src.users.repository import UserRepository
 
 
 class TeamService:
@@ -13,8 +16,8 @@ class TeamService:
         user_repo: UserRepositoryProtocol | None = None,
         session: AsyncSession | None = None,
     ):
-        self.team_repo = team_repo
-        self.user_repo = user_repo
+        self.team_repo = team_repo or TeamRepository(session)
+        self.user_repo = user_repo or UserRepository(session)
         self.session = session
 
     async def add_team(
@@ -23,14 +26,19 @@ class TeamService:
         existing = await self.team_repo.get_team(team_name)
         if existing:
             raise TeamExistsError(team_name)
+        try:
+            async with self.session.begin():
+                await self.team_repo.create_team(team_name)
+                for member in members:
+                    await self.user_repo.upsert_user(
+                        member.user_id,
+                        member.username,
+                        team_name,
+                        member.is_active,
+                    )
+        except IntegrityError:
+            raise TeamExistsError(team_name) from None
 
-        await self.team_repo.create_team(team_name)
-        for member in members:
-            await self.user_repo.upsert_user(
-                member.user_id, member.username, team_name, member.is_active
-            )
-
-        await self.session.commit()
         return await self.get_team(team_name)
 
     async def get_team(self, team_name: str) -> Team:
