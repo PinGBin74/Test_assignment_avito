@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from pull_requests.models import PullRequestStatus
+from src.pull_requests.models import PullRequestStatus
 
 
 class PullRequestOut(BaseModel):

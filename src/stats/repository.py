@@ -8,7 +8,7 @@ from src.pull_requests.models import (
 )
 
 
-class StatsService:
+class StatsRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
