@@ -10,3 +10,8 @@ class TeamMember(BaseModel):
 class Team(BaseModel):
     team_name: str
     members: list[TeamMember]
+
+
+class DeactivateRequest(BaseModel):
+    team_name: str
+
