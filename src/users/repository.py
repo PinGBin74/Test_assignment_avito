@@ -1,4 +1,4 @@
-from sqlalchemy import select, true
+from sqlalchemy import select, true, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.team.schema import TeamMember
@@ -51,6 +51,13 @@ class UserRepository:
             )
         )
         return list(result.scalars().all())
+
+    async def user_set_inactive(self, team_name: str) -> None:
+        await self.session.execute(
+            update(User)
+            .where(User.team_name == team_name)
+            .values(is_active=False)
+        )
 
     async def get_team_members(self, team_name: str) -> list[TeamMember]:
         result = await self.session.execute(

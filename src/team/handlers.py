@@ -1,10 +1,15 @@
 from fastapi import APIRouter, Depends, Query
+from pydantic import BaseModel
 
 from src.dependencies import get_team_service
 from src.team.schema import Team
 from src.team.service import TeamService
 
 router = APIRouter(tags=["Teams"])
+
+
+class DeactivateRequest(BaseModel):
+    team_name: str
 
 
 @router.post("/team/add", status_code=201)
@@ -14,6 +19,14 @@ async def add_team(
 ) -> Team:
     team = await service.add_team(body.team_name, body.members)
     return team
+
+
+@router.post("/team/deactivate")
+async def deactivate_team(
+    body: DeactivateRequest,
+    service: TeamService = Depends(get_team_service),
+) -> dict:
+    return await service.deactivate_team(body.team_name)
 
 
 @router.get("/team/get")
