@@ -7,7 +7,6 @@ from src.team.service import TeamService
 router = APIRouter(tags=["Teams"])
 
 
-
 @router.post("/team/add", status_code=201)
 async def add_team(
     body: Team,

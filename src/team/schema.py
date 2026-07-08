@@ -14,4 +14,3 @@ class Team(BaseModel):
 
 class DeactivateRequest(BaseModel):
     team_name: str
-
