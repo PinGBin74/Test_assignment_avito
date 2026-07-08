@@ -139,6 +139,5 @@ dmypy.json
 .vscode
 
 media/
-Makefile
 .ruff_cache
 .DS_Store
