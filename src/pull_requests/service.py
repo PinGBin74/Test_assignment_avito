@@ -48,17 +48,16 @@ class PullRequestService:
         )
         selected = random.sample(candidates, min(2, len(candidates)))
         try:
-            async with self.session.begin():
-                pr = await self.pr_repo.create(
-                    req.pull_request_id, req.pull_request_name, req.author_id
+            pr = await self.pr_repo.create(
+                req.pull_request_id, req.pull_request_name, req.author_id
+            )
+            assigned = []
+            for reviewer in selected:
+                assigned.append(reviewer.user_id)
+                await self.pr_repo.assign_reviewer(
+                    req.pull_request_id, reviewer.user_id
                 )
-                assigned = []
-                for reviewer in selected:
-                    assigned.append(reviewer.user_id)
-                    await self.pr_repo.assign_reviewer(
-                        req.pull_request_id, reviewer.user_id
-                    )
-
+            await self.session.commit()
         except IntegrityError:
             raise PRExistsError(req.pull_request_id) from None
 

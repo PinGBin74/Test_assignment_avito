@@ -33,15 +33,15 @@ class TeamService:
         if existing:
             raise TeamExistsError(team_name)
         try:
-            async with self.session.begin():
-                await self.team_repo.create_team(team_name)
-                for member in members:
-                    await self.user_repo.upsert_user(
-                        member.user_id,
-                        member.username,
-                        team_name,
-                        member.is_active,
-                    )
+            await self.team_repo.create_team(team_name)
+            for member in members:
+                await self.user_repo.upsert_user(
+                    member.user_id,
+                    member.username,
+                    team_name,
+                    member.is_active,
+                )
+            await self.session.commit()
         except IntegrityError:
             raise TeamExistsError(team_name) from None
 
