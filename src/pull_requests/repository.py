@@ -1,4 +1,4 @@
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.pull_requests.models import (
@@ -36,7 +36,7 @@ class PullRequestRepository:
         result = await self.session.execute(
             update(PullRequest)
             .where(PullRequest.pull_request_id == pr_id)
-            .values(status=PullRequestStatus.MERGED, merged_at=func.now())
+            .values(status=PullRequestStatus.MERGED, merged_at=utc_now_naive())
             .returning(PullRequest)
         )
         return result.scalar_one_or_none()
@@ -72,5 +72,27 @@ class PullRequestRepository:
             select(PullRequest)
             .join(ReviewerAssignment)
             .where(ReviewerAssignment.user_id == user_id)
+        )
+        return list(result.scalars().all())
+
+    async def remove_reviewer(self, pr_id: str, user_id: str) -> None:
+        await self.session.execute(
+            delete(ReviewerAssignment).where(
+                ReviewerAssignment.pull_request_id == pr_id,
+                ReviewerAssignment.user_id == user_id,
+            )
+        )
+
+    async def get_open_prs_by_reviewers(
+        self, user_ids: list[str]
+    ) -> list[PullRequest]:
+        result = await self.session.execute(
+            select(PullRequest)
+            .join(ReviewerAssignment)
+            .where(
+                PullRequest.status == PullRequestStatus.OPEN,
+                ReviewerAssignment.user_id.in_(user_ids),
+            )
+            .distinct()
         )
         return list(result.scalars().all())

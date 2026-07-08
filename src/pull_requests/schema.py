@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Literal
 
 from pydantic import BaseModel, Field
+
+from pull_requests.models import PullRequestStatus
 
 
 class PullRequestOut(BaseModel):
@@ -10,7 +11,7 @@ class PullRequestOut(BaseModel):
     pull_request_id: str
     pull_request_name: str
     author_id: str
-    status: Literal["OPEN", "MERGED"]
+    status: PullRequestStatus
     assigned_reviewers: list[str]
     created_at: datetime | None = Field(default=None, alias="createdAt")
     merged_at: datetime | None = Field(default=None, alias="mergedAt")
@@ -20,7 +21,7 @@ class PullRequestShort(BaseModel):
     pull_request_id: str
     pull_request_name: str
     author_id: str
-    status: Literal["OPEN", "MERGED"]
+    status: PullRequestStatus
 
 
 class CreatePRRequest(BaseModel):

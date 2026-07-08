@@ -59,7 +59,6 @@ class PullRequestService:
                         req.pull_request_id, reviewer.user_id
                     )
 
-        
         except IntegrityError:
             raise PRExistsError(req.pull_request_id) from None
 
