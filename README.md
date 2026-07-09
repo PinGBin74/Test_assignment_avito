@@ -68,7 +68,6 @@ Configured in `pyproject.toml` via ruff.
 
 ```
 ├── alembic/          – DB migration scripts
-├── alembic/          – DB migration scripts
 ├── src/              – Application code
 │   ├── infrastructure/ – DB engine, session, Base model
 │   ├── team/         – Team management (handlers, service, repository, schema)
