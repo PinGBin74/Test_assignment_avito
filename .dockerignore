@@ -1,7 +1,10 @@
 .venv
-.idea
-.vscode
-__pycache__
-*.pyc
 .git
-alembic/versions/*.pyc
+__pycache__
+.ruff_cache
+.pytest_cache
+.vscode
+.env
+*.md
+*.pyc
+*.pyo
