@@ -24,9 +24,7 @@ The service will be available at `http://localhost:8080`. Migrations run automat
 
 ```bash
 poetry install
-make db-up
-make migrate
-make dev
+
 ```
 
 ## Testing
@@ -44,6 +42,12 @@ The test suite uses a temporary PostgreSQL container (testcontainers) and create
 make lint
 ```
 
+
+## Build
+
+```bash
+make run
+```
 Configured in `pyproject.toml` via ruff.
 
 ## API
@@ -64,7 +68,9 @@ Configured in `pyproject.toml` via ruff.
 
 ```
 ├── alembic/          – DB migration scripts
+├── alembic/          – DB migration scripts
 ├── src/              – Application code
+│   ├── infrastructure/ – DB engine, session, Base model
 │   ├── team/         – Team management (handlers, service, repository, schema)
 │   ├── users/        – User management
 │   ├── pull_requests/– PR lifecycle (create, merge, reassign)
@@ -73,7 +79,8 @@ Configured in `pyproject.toml` via ruff.
 ├── docker-compose.yml
 ├── Dockerfile
 ├── Makefile
-└── pyproject.toml
+├── pyproject.toml
+└── .env.example
 ```
 
 ## Key Files
